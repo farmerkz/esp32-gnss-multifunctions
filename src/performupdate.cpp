@@ -1,7 +1,10 @@
 #include "main.h"
 
-// Выполняем обновление из stream
-// возврашем true, если обновление удачно, иначе - false
+/** @brief Выполняем обновление из файла
+ * @param updateSource stream, из котрого читается обновление
+ * @param updateSize размер обновления, байт
+ * @return true, если обновление удачно, false, если ошибка
+ */
 bool performUpdate(Stream &updateSource, size_t updateSize)
 {
   bool updResult;

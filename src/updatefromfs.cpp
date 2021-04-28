@@ -2,8 +2,11 @@
 
 extern bool performUpdate(Stream &updateSource, size_t updateSize);
 
-// Проверяем указанную FS на наличие firmware.bin и, если имеется, запускаем обновление
-// Если обновление удачно - удаляем файл и перезагружаем ESP32
+/** @brief Проверяем указанную файловую систему на наличие firmware.bin 
+ * и, если имеется, запускаем обновление.
+ * Если обновление удачно - удаляем файл и перезагружаем ESP32
+ * @param fs Файловая система
+ */
 void updateFromFS(fs::FS &fs)
 {
   bool res = false;

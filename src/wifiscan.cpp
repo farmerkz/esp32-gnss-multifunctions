@@ -11,7 +11,9 @@ extern void fatalError(void);
 extern void clearFolders(bool gps, bool wifi);
 extern fileConfig config;
 
-// Преобразование кода encryption в строку
+/** @brief Преобразование кода encryption в строку
+ * @param encryptionType код encryption
+ */
 String translateEncryptionType(wifi_auth_mode_t encryptionType)
 {
     switch (encryptionType)
@@ -36,13 +38,15 @@ String translateEncryptionType(wifi_auth_mode_t encryptionType)
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
 
-// Сканирование WiFi и запись результата в файл
-// Сканирование производится всегда, запись в файл - только
-// при условии выставленных флагов BIT_G1_9 (файл WiFi создан) и isValid (позиция валидна),
-// а также при наличии хотя бы одной WiFi сети в результатах сканирования.
-// Если после записи размер файла стал больше config.filesize, то то текущий файл
-// закрывается, вызывается очистка папки wifi.wk и обнуляется
-// флаг BIT_G1_9 (файл WiFi создан)
+/** @brief Сканирование WiFi и запись результата в файл
+ * Сканирование производится всегда, запись в файл - только
+ * при условии выставленных флагов BIT_G1_9 (файл WiFi создан) и isValid (позиция валидна),
+ * а также при наличии хотя бы одной WiFi сети в результатах сканирования.
+ * Если после записи размер файла стал больше config.filesize, то то текущий файл
+ * закрывается, вызывается очистка папки wifi.wk и обнуляется
+ * флаг BIT_G1_9 (файл WiFi создан)
+ * @param pvParameters Стандартный параметр для Task
+ */
 void wifiCode(void *pvParameters)
 {
     EventBits_t _eventBits;
