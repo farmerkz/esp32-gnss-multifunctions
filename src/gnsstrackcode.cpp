@@ -16,8 +16,10 @@ extern uint32_t createFilesTaskStack;
 extern uint32_t ftpSendTaskStack;
 extern void fatalError(void);
 
-// Запись точки трека в файл при наличии установленного флага BIT_G1_2 (читаем - сбрасываем)
-// Формирование точки и запись производится только при установленном флаге BIT_G1_8
+/** @brief Запись точки трека в файл при наличии установленного флага BIT_G1_2 (читаем - сбрасываем).
+* Формирование точки и запись производится только при установленном флаге BIT_G1_8
+* @param pvParameters Стандартный параметр для Task
+*/
 void gnssTrackCode(void *pvParameters)
 {
 
