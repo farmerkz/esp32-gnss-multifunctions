@@ -26,6 +26,7 @@
 #define FTP_ADDRESS "192.168.168.100"
 #define FTP_USER "ftpuser"
 #define FTP_PASSWD "ftppasswd"
+#define FTP_CMD_PORT (uint16_t)21   // ftp-cmd порт, по умолчанию 21
 #endif
 
 #ifdef DEBUG
@@ -48,7 +49,6 @@
 #define TZ_SECONDS (3600 * TZ_HOURS)   // Таймзона - в секундах
 #define SEEK_TRKPT_BACKWARDS 24        // Длина эпилога трека
 #define CSV_MAX_FILESIZE 1000000UL     // Максимальный размер файла WiFi по умолчанию (в байтах)
-#define FTP_CMD_PORT (uint16_t)40821   // ftp-cmd порт, по умолчанию 40821
 #define JSON_OBJ_SIZE 512              // Размер буфера для JSON
 #define CONF_FILE_NAME "/config.json"  // Имя файла конфигурации
 #define FIRMWARE "/firmware.bin"       // Имя файла обновления
