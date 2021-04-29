@@ -67,7 +67,7 @@
 #define WIFI_RD "/wifi.rd"             // Готово для отправки на FTP
 #define WIFI_SD "/wifi.sd"             // Отправлено на FTP
 #define GPS_PREFIX "gps-"              // Префикс для имени файла трека
-#define GPS_EXT ".gps"                 // Расширение имени файла трека
+#define GPS_EXT ".gpx"                 // Расширение имени файла трека
 #define WIFI_PREFIX "wifi-"            // Префикс для имени файла WiFi
 #define WIFI_EXT ".csv"                // Расширение имени файла WiFi
 #define DELAY_CREATE_ALL_FILES 100     // Delay time для цикла в createAllFiles
