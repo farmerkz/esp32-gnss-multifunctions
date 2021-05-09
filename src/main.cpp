@@ -77,6 +77,7 @@ void setup()
   // ====================================================================================
 
   // esp_sleep_wakeup_cause_t wakeup_reason;
+  esp_reset_reason_t reset_reasn;
   bool baudOK = false;
   unsigned long detectedBaudRate = 0;
 
@@ -84,12 +85,16 @@ void setup()
   // Секция кода
   // ====================================================================================
 
-  // Проверяем, первоначальная загрузка или вышли из спящего режима
-  // (пока никак не используется)
+  // Запрашиваем причину загрузки.
   // wakeup_reason = esp_sleep_get_wakeup_cause();
+  reset_reasn = esp_reset_reason();
 
   // Пауза 0,5 сек для завершения инициализации всех модулей
   delay(500);
+
+  // Если любая причина загрузки, кроме deep sleep, обнуляем флаг gnssConf
+  if (reset_reasn != ESP_RST_DEEPSLEEP)
+    gnssConf = false;
 
   // Включаем watcdog основного цикла
   enableLoopWDT();
