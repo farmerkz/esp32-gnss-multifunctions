@@ -207,10 +207,10 @@ void setup()
     myGNSS.setUART1Output(COM_TYPE_UBX);
     myGNSS.setDynamicModel(DYN_MODEL_PEDESTRIAN);
     myGNSS.setNavigationFrequency(1);
-    gnssConf = true;
     if (config.pDopMask != 0 || config.pAccMask != 0)
       if (!setfixmask())
         fatalError(4);
+    gnssConf = true;
   }
   // Разрешаем Auto PVT сообщения, используем callback
   myGNSS.setAutoPVTcallback(&getPVTdata);
