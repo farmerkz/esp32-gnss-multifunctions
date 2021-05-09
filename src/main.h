@@ -26,7 +26,7 @@
 #define FTP_ADDRESS "192.168.168.100"
 #define FTP_USER "ftpuser"
 #define FTP_PASSWD "ftppasswd"
-#define FTP_CMD_PORT (uint16_t)21   // ftp-cmd порт, по умолчанию 21
+#define FTP_CMD_PORT (uint16_t)21 // ftp-cmd порт, по умолчанию 21
 #endif
 
 #ifdef DEBUG
@@ -107,6 +107,8 @@ struct fileConfig
   bool ftpbeep;        // Флаг включения звука
   uint16_t ftpPort;    // Порт FTP сервера
   char moduleID[3];    // Идентификатор устройства
+  uint16_t pAccMask;   // Position Accuracy Mask to use
+  uint16_t pDopMask;    // Position DOP Mask to use
 };
 
 // Структура для имен папок
