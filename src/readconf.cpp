@@ -24,6 +24,8 @@ void readConf(char *_filename)
   config.ftpbeep = false;
   config.ftpPort = FTP_CMD_PORT;
   strlcpy(config.moduleID, "00", sizeof(config.moduleID));
+  config.pDopMask = 0;
+  config.pAccMask = 0;
 
   if (SD.exists(_filename))
   {
@@ -43,6 +45,8 @@ void readConf(char *_filename)
       strlcpy(_wifisend, doc["wifisend"] | "true", sizeof(_wifisend));
       strlcpy(_ftpbeep, doc["ftpbeep"] | "false", sizeof(_ftpbeep));
       strlcpy(config.moduleID, doc["moduleid"] | "00", sizeof(config.moduleID));
+      config.pDopMask = doc["pdopmask"] | 0;
+      config.pAccMask = doc["paccmask"] | 0;
 
       if ((_gpssend[0] == 't') || (_gpssend[0] == 'y'))
       {
