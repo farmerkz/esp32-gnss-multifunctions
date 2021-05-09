@@ -1,6 +1,7 @@
 #include "main.h"
 
 extern bool performUpdate(Stream &updateSource, size_t updateSize);
+extern void fatalError(uint8_t n, const char *event, bool _deepsl = true);
 
 /** @brief Проверяем указанную файловую систему на наличие firmware.bin 
  * и, если имеется, запускаем обновление.
@@ -16,6 +17,7 @@ void updateFromFS(fs::FS &fs)
     if (updateBin.isDirectory())
     {
       // Serial.println("Error, firmware.bin is not a file");
+      fatalError(0, "Error, " FIRMWARE " is not a file", false);
       updateBin.close();
       return;
     }
@@ -25,6 +27,7 @@ void updateFromFS(fs::FS &fs)
     if (updateSize > 0)
     {
       // Serial.println("Try to start update");
+      fatalError(0, "Try to start update from " FIRMWARE, false);
       for (int i = 0; i < 2; i++)
       {
         ledcWriteTone(BUZZER_CHAN, 800);
@@ -37,6 +40,7 @@ void updateFromFS(fs::FS &fs)
     else
     {
       // Serial.println("Error, file is empty");
+      fatalError(0, "Error, file " FIRMWARE " is empty");
     }
 
     updateBin.close();
@@ -44,6 +48,7 @@ void updateFromFS(fs::FS &fs)
     if (res)
     {
       fs.remove(FIRMWARE);
+      fatalError(0,"Firmware successfully updated",false);
       delay(100);
       for (int i = 0; i < 5; i++)
       {
@@ -58,6 +63,7 @@ void updateFromFS(fs::FS &fs)
     }
     else
     {
+      fatalError(0,"Error, firmware not updated",false);
       ledcWriteTone(BUZZER_CHAN, 700);
       delay(5000);
       ledcWriteTone(BUZZER_CHAN, 0);
