@@ -19,6 +19,7 @@ volatile xSemaphoreHandle sdMutex;               // Мьютекс доступ�
 volatile xSemaphoreHandle wifiMutex;             // Мьютекс доступа к WiFi
 File trackFile;                                  // Текущий файл трека
 File wifiFile;                                   // Текущий файл WiFi
+File logFile;                                    // Файл лога
 TaskHandle_t createFilesTask = NULL;             // Хэндл задачи создания всех файлов
 TaskHandle_t trackTask = NULL;                   // Хэндл задачи записи точки трека
 TaskHandle_t wifiTask = NULL;                    // Хэндл задачи сканирования WiFi и записи в файл
@@ -51,7 +52,7 @@ xQueueHandle queueTrackTime;    // Время для трека и WiFi
 // ====================================================================================
 
 extern void fatalError();
-extern void fatalError(uint8_t n);
+extern void fatalError(uint8_t n, const char *event, bool _deepsl = true);
 extern void changeColor(uint _red, uint _green, uint _blue);
 extern void readConf(char *_filename);
 extern bool performUpdate(Stream &updateSource, size_t updateSize);
@@ -77,7 +78,7 @@ void setup()
   // ====================================================================================
 
   // esp_sleep_wakeup_cause_t wakeup_reason;
-  esp_reset_reason_t reset_reasn;
+  esp_reset_reason_t reset_reason;
   bool baudOK = false;
   unsigned long detectedBaudRate = 0;
 
@@ -87,14 +88,14 @@ void setup()
 
   // Запрашиваем причину загрузки.
   // wakeup_reason = esp_sleep_get_wakeup_cause();
-  reset_reasn = esp_reset_reason();
+  reset_reason = esp_reset_reason();
 
   // Пауза 0,5 сек для завершения инициализации всех модулей
   delay(500);
 
   // Если любая причина загрузки, кроме deep sleep, обнуляем флаг gnssConf
-  if (reset_reasn != ESP_RST_DEEPSLEEP)
-    gnssConf = false;
+  // if (reset_reasn != ESP_RST_DEEPSLEEP)
+  // gnssConf = false;
 
   // Включаем watcdog основного цикла
   enableLoopWDT();
@@ -139,6 +140,63 @@ void setup()
   // ************************************************************************************
 
   // ************************************************************************************
+  // Открытие файла лога
+  // ------------------------------------------------------------------------------------
+  logFile = SD.open(LOG_FILE, "a");
+  if (!logFile)
+  {
+    fatalError();
+  }
+  // ------------------------------------------------------------------------------------
+  // файл лога открыт
+  // ************************************************************************************
+
+  // ************************************************************************************
+  // Определяем причину загрузки и пишем в лог
+  // ------------------------------------------------------------------------------------
+  switch (reset_reason)
+  {
+  case ESP_RST_POWERON:
+    fatalError(0, "Power On", false);
+    gnssConf = false;
+    break;
+
+  case ESP_RST_INT_WDT:
+  case ESP_RST_TASK_WDT:
+  case ESP_RST_WDT:
+    fatalError(0, "Reset due watchdog", false);
+    gnssConf = false;
+    break;
+
+  case ESP_RST_DEEPSLEEP:
+    fatalError(0, "Start after Deep Sleep", false);
+    break;
+
+  case ESP_RST_PANIC:
+    fatalError(0, "Software reset due to exception/panic", false);
+    gnssConf = false;
+    break;
+
+  case ESP_RST_BROWNOUT:
+    fatalError(0, "Brownout reset (software or hardware)", false);
+    gnssConf = false;
+    break;
+
+  case ESP_RST_SW:
+    fatalError(0, "Software reset via esp_restart.", false);
+    gnssConf = false;
+    break;
+
+  default:
+    fatalError(0, "Reset reason can not be determined", false);
+    gnssConf = false;
+    break;
+  }
+  // ------------------------------------------------------------------------------------
+  // Причина загрузки сохранена
+  // ************************************************************************************
+
+  // ************************************************************************************
   // Загрузка конфигурации
   // ------------------------------------------------------------------------------------
   changeColor(0, 128, 0);
@@ -166,6 +224,7 @@ void setup()
   // ------------------------------------------------------------------------------------
   // Определяем скорость порта GNSS
   ledChange('G', 128);
+  fatalError(0, "Detect baud rate GNSS port", false);
   while (!baudOK)
   {
     gpsSerial.begin(0, SERIAL_8N1, 16, 17, false, 10000UL);
@@ -188,7 +247,7 @@ void setup()
     delay(10);
     if (myGNSS.begin(gpsSerial) == false)
     {
-      fatalError(5);
+      fatalError(5, "myGNSS.begin error on not 115200");
     }
     myGNSS.setSerialRate(115200, 1);
     gpsSerial.end();
@@ -197,7 +256,7 @@ void setup()
   gpsSerial.begin(115200);
   if (myGNSS.begin(gpsSerial) == false)
   {
-    fatalError(5);
+    fatalError(5, "myGNSS.begin error on 115200");
   }
 
   // Значение gnssConf хранится в RTC памяти,
@@ -209,11 +268,12 @@ void setup()
     myGNSS.setNavigationFrequency(1);
     if (config.pDopMask != 0 || config.pAccMask != 0)
       if (!setfixmask())
-        fatalError(4);
+        fatalError(4, "Accuracy mask error");
     gnssConf = true;
   }
   // Разрешаем Auto PVT сообщения, используем callback
   myGNSS.setAutoPVTcallback(&getPVTdata);
+  fatalError(0, "GNSS module is OK", false);
 
   // ------------------------------------------------------------------------------------
   // Модуль GNSS настроен
@@ -293,7 +353,10 @@ void setup()
   // ************************************************************************************
 
   changeColor(0, 0, 0);
-
+  xSemaphoreTake(sdMutex, portMAX_DELAY);
+  fatalError(0, "Setup is done", false);
+  xSemaphoreGive(sdMutex);
+  
   // ====================================================================================
   // Инициализация полностью закочена
   // ====================================================================================
