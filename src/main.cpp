@@ -64,6 +64,7 @@ extern void gnssTrackCode(void *pvParameters);
 extern void wifiCode(void *pvParameters);
 extern void ftpTask(void *pvParameters);
 extern void ledChange(char color, uint light);
+extern bool setfixmask(void);
 
 // ====================================================================================
 // Секция кода
@@ -202,6 +203,9 @@ void setup()
     myGNSS.setDynamicModel(DYN_MODEL_PEDESTRIAN);
     myGNSS.setNavigationFrequency(1);
     gnssConf = true;
+    if (config.pDopMask != 0 || config.pAccMask != 0)
+      if (!setfixmask())
+        fatalError(4);
   }
   // Разрешаем Auto PVT сообщения, используем callback
   myGNSS.setAutoPVTcallback(&getPVTdata);
