@@ -84,7 +84,7 @@
 #define GPS_SUBSTR_2 29                // Подстрока для добавления ID модуля в имя файла gps
 // Заголовок файла трека
 #define TRACK_HEAD "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" \
-                   "<gpx version=\"1.0\" creator=\"My GPS logger\" xmlns=\"http://www.topografix.com/GPX/1/0\">\n"
+                   "<gpx version=\"1.0\" creator=\"ESP32 GPS logger\" xmlns=\"http://www.topografix.com/GPX/1/0\">\n"
 // Эпилог файла трека
 #define TRACK_EPILOG "</trkseg>\n</trk>\n</gpx>\n"
 // #define TRACK_END "</trkseg>\n</trk>\n"
