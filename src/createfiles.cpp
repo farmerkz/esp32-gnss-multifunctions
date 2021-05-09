@@ -10,6 +10,7 @@ extern volatile xSemaphoreHandle wifiMutex;
 extern EventGroupHandle_t eventGroup_1;
 extern File trackFile;
 extern File wifiFile;
+extern fileConfig config;
 
 /** @brief Создание и открытие на запись всех файлов, запись заголовков
  * Выполняется только при наличии сформированных даты и времени: проверяются флаги,
@@ -71,7 +72,7 @@ void createAllFiles(void *pvParameters)
             {
                 fatalError();
             }
-            _writedBytes = trackFile.printf("<trk><name>TRK-%sT%s</name>\n<trkseg>\n", _ldate, _ltime2);
+            _writedBytes = trackFile.printf("<trk><name>TRK-%sT%s-%s</name>\n<trkseg>\n", _ldate, _ltime2,config.moduleID);
             if (_writedBytes <= 0)
             {
                 fatalError();
