@@ -1,4 +1,5 @@
 #include "main.h"
+#include "commonexternal.h"
 
 extern fileConfig config;
 
@@ -29,6 +30,7 @@ void readConf(char *_filename)
 
   if (SD.exists(_filename))
   {
+    logging("Opening the configuration file\n", false);
     _fl = SD.open(_filename, "r");
     StaticJsonDocument<JSON_OBJ_SIZE> doc; // https://arduinojson.org/v6/assistant/
     DeserializationError error = deserializeJson(doc, _fl);
@@ -91,8 +93,17 @@ void readConf(char *_filename)
         strlcpy(config.ftpUser, FTP_USER, sizeof(config.ftpUser));
         strlcpy(config.ftpPasswd, FTP_PASSWD, sizeof(config.ftpPasswd));
         config.ftpPort = FTP_CMD_PORT;
+        logging("Configuration loaded\n", false);
       }
     }
+    else
+    {
+      logging("Configuration load error\n", false);
+    }
     _fl.close();
+  }
+  else
+  {
+    logging("No config file, load default config\n", false);
   }
 } //readConf

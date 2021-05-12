@@ -70,7 +70,7 @@
 #define GPS_EXT ".gpx"                 // Расширение имени файла трека
 #define WIFI_PREFIX "wifi-"            // Префикс для имени файла WiFi
 #define WIFI_EXT ".csv"                // Расширение имени файла WiFi
-#define LOG_FILE "/error.log"          // Имя файла лога
+#define LOG_FILE "/messages.log"       // Имя файла лога
 #define DELAY_CREATE_ALL_FILES 100     // Delay time для цикла в createAllFiles
 #define DELAY_GNSS_TRACK_CODE 10       // Delay time для цикла в gnssTrackCode
 #define mm2m (double)1.0e-3            //Для перевода милиметров в метры

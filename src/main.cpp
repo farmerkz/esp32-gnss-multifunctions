@@ -1,4 +1,5 @@
 #include "main.h"
+#include "commonexternal.h"
 
 // ====================================================================================
 // Секция объявлений переменных
@@ -51,8 +52,6 @@ xQueueHandle queueTrackTime;    // Время для трека и WiFi
 // Секция объявлений подпрограмм
 // ====================================================================================
 
-extern void fatalError();
-extern void fatalError(uint8_t n, const char *event, bool _deepsl = true);
 extern void changeColor(uint _red, uint _green, uint _blue);
 extern void readConf(char *_filename);
 extern bool performUpdate(Stream &updateSource, size_t updateSize);
@@ -154,46 +153,48 @@ void setup()
   // ************************************************************************************
   // Определяем причину загрузки и пишем в лог
   // ------------------------------------------------------------------------------------
+  logging("========== Start logging ==========\n", false);
+  logging("Reset reason is: ", false);
   switch (reset_reason)
   {
   case ESP_RST_POWERON:
-    fatalError(0, "Power On", false);
+    logFile.print("Reset due to power-on event\n");
     gnssConf = false;
     break;
 
   case ESP_RST_INT_WDT:
   case ESP_RST_TASK_WDT:
   case ESP_RST_WDT:
-    fatalError(0, "Reset due watchdog", false);
+    logFile.print("Reset due watchdog\n");
     gnssConf = false;
     break;
 
   case ESP_RST_DEEPSLEEP:
-    fatalError(0, "Start after Deep Sleep", false);
+    logFile.print("Reset after exiting deep sleep mode\n");
     break;
 
   case ESP_RST_PANIC:
-    fatalError(0, "Software reset due to exception/panic", false);
+    logFile.print("Software reset due to exception/panic\n");
     gnssConf = false;
     break;
 
   case ESP_RST_BROWNOUT:
-    fatalError(0, "Brownout reset (software or hardware)", false);
+    logFile.print("Brownout reset (software or hardware)\n");
     gnssConf = false;
     break;
 
   case ESP_RST_SW:
-    fatalError(0, "Software reset via esp_restart.", false);
+    logFile.print("Software reset via esp_restart\n");
     gnssConf = false;
     break;
 
   default:
-    fatalError(0, "Reset reason can not be determined", false);
+    logFile.print("Reset reason can not be determined\n");
     gnssConf = false;
     break;
   }
   // ------------------------------------------------------------------------------------
-  // Причина загрузки сохранена
+  // Причина загрузки выведена в лог
   // ************************************************************************************
 
   // ************************************************************************************
@@ -215,6 +216,7 @@ void setup()
   updateFromFS(SD);
   enableLoopWDT();
   ledChange('B', 0);
+
   // ------------------------------------------------------------------------------------
   // С обновлением закончили
   // ************************************************************************************
@@ -224,7 +226,7 @@ void setup()
   // ------------------------------------------------------------------------------------
   // Определяем скорость порта GNSS
   ledChange('G', 128);
-  fatalError(0, "Detect baud rate GNSS port", false);
+  logging("Detect the port speed of GNSS\n", false);
   while (!baudOK)
   {
     gpsSerial.begin(0, SERIAL_8N1, 16, 17, false, 10000UL);
@@ -241,13 +243,17 @@ void setup()
     }
     gpsSerial.end();
   }
+
+  logging("Detected baud rate: %d\n", detectedBaudRate, false);
+
   if (detectedBaudRate != 115200UL)
   {
     gpsSerial.begin(detectedBaudRate, SERIAL_8N1, 16, 17);
     delay(10);
     if (myGNSS.begin(gpsSerial) == false)
     {
-      fatalError(5, "myGNSS.begin error on not 115200");
+      logging("ERROR myGNSS.begin at the baud rate: %d\n", detectedBaudRate, false);
+      fatalError(5);
     }
     myGNSS.setSerialRate(115200, 1);
     gpsSerial.end();
@@ -256,7 +262,12 @@ void setup()
   gpsSerial.begin(115200);
   if (myGNSS.begin(gpsSerial) == false)
   {
-    fatalError(5, "myGNSS.begin error on 115200");
+    logging("ERROR myGNSS.begin at the baud rate: 115200\n", false);
+    fatalError(5);
+  }
+  else
+  {
+    logging("GNSS port speed set to 115200\n", false);
   }
 
   // Значение gnssConf хранится в RTC памяти,
@@ -268,12 +279,15 @@ void setup()
     myGNSS.setNavigationFrequency(1);
     if (config.pDopMask != 0 || config.pAccMask != 0)
       if (!setfixmask())
-        fatalError(4, "Accuracy mask error");
+      {
+        logging("Accuracy mask setting error\n", false);
+        fatalError(4);
+      }
     gnssConf = true;
   }
   // Разрешаем Auto PVT сообщения, используем callback
   myGNSS.setAutoPVTcallback(&getPVTdata);
-  fatalError(0, "GNSS module is OK", false);
+  logging("GNSS module is OK\n", false);
 
   // ------------------------------------------------------------------------------------
   // Модуль GNSS настроен
@@ -283,6 +297,7 @@ void setup()
   // создаем очереди, мьютексы, event группы
   // ------------------------------------------------------------------------------------
 
+  logging("Create queues, mutexes, event groups\n", false);
   eventGroup_1 = xEventGroupCreate();                           // Event группа 1
   xEventGroupClearBits(eventGroup_1, (uint32_t)0x0FFFFFF);      // Обнуляем все флаги
   queueGnssWiFi = xQueueCreate(1, sizeof(wifiPos));             // Очередь данных о позиции для WiFi
@@ -311,6 +326,8 @@ void setup()
   // ************************************************************************************
   // создаем задачи
   // ------------------------------------------------------------------------------------
+
+  logging("Create tasks\n", false);
 
   xTaskCreatePinnedToCore(
       createAllFiles,
@@ -353,10 +370,8 @@ void setup()
   // ************************************************************************************
 
   changeColor(0, 0, 0);
-  xSemaphoreTake(sdMutex, portMAX_DELAY);
-  fatalError(0, "Setup is done", false);
-  xSemaphoreGive(sdMutex);
-  
+  logging("Setup is done\n", false);
+
   // ====================================================================================
   // Инициализация полностью закочена
   // ====================================================================================
@@ -372,5 +387,5 @@ void loop()
   createFilesTaskStack = (uint32_t)uxTaskGetStackHighWaterMark(createFilesTask);
   ftpSendTaskStack = (uint32_t)uxTaskGetStackHighWaterMark(ftpSendTask);
 
-  delay(50);
+  delay(10);
 }

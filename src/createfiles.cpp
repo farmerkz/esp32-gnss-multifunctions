@@ -1,7 +1,7 @@
 #include "main.h"
+#include "commonexternal.h"
 
 extern void checkFolders(void);
-extern void fatalError(void);
 extern xQueueHandle queueFileDateName;
 extern xQueueHandle queueFileTimeName;
 extern xQueueHandle queueTrackTime;
@@ -85,6 +85,7 @@ void createAllFiles(void *pvParameters)
             trackFile.flush();
             xSemaphoreGive(sdMutex);
             xEventGroupSetBits(eventGroup_1, BIT_G1_8);
+            logging("%s file created\n",_fileTrackName);
         }
 
         // ---------------------------------------------------
@@ -132,6 +133,7 @@ void createAllFiles(void *pvParameters)
             wifiFile.flush();
             xSemaphoreGive(sdMutex);
             xEventGroupSetBits(eventGroup_1, BIT_G1_9);
+            logging("%s file created\n",_fileWifiName);
         }
     }
     delay(DELAY_CREATE_ALL_FILES);

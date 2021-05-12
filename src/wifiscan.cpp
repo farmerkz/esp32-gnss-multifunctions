@@ -1,4 +1,5 @@
 #include "main.h"
+#include "commonexternal.h"
 
 extern volatile xSemaphoreHandle wifiMutex;
 extern volatile xSemaphoreHandle sdMutex;
@@ -7,7 +8,6 @@ extern xQueueHandle queueGnssWiFi;
 extern xQueueHandle queueFileDateName;
 extern xQueueHandle queueTrackTime;
 extern File wifiFile;
-extern void fatalError(void);
 extern void clearFolders(bool gps, bool wifi);
 extern fileConfig config;
 
@@ -56,7 +56,7 @@ void wifiCode(void *pvParameters)
     char _wigleString[250];
     int n = 0;
     size_t _writedBytes;
-    String _newFlName;
+    // String _newFlName;
 
     for (;;)
     {
@@ -104,6 +104,7 @@ void wifiCode(void *pvParameters)
             if (wifiFile.size() >= config.filesize)
             {
                 wifiFile.close();
+                logging("WiFi file is flushed\n",false);
                 xEventGroupClearBits(eventGroup_1, BIT_G1_9);
                 clearFolders(false, true);
             }

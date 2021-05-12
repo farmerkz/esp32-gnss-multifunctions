@@ -1,20 +1,15 @@
 #include "main.h"
+#include "commonexternal.h"
 
 extern EventGroupHandle_t eventGroup_1;
 extern xQueueHandle queueGnssTrack;
 extern volatile xSemaphoreHandle sdMutex;
 extern File trackFile;
-// extern const double mm2m;
-// extern const double en7;
-// extern const double en5;
 extern uint32_t loopTaskHandleStack;
-// extern uint32_t gnssTaskStack;
 extern uint32_t trackTaskStack;
 extern uint32_t wifiTaskStack;
-// extern uint32_t checkFixStatusTaskStack;
 extern uint32_t createFilesTaskStack;
 extern uint32_t ftpSendTaskStack;
-extern void fatalError(void);
 
 /** @brief Запись точки трека в файл при наличии установленного флага BIT_G1_2 (читаем - сбрасываем).
  * Формирование точки и запись производится только при установленном флаге BIT_G1_8

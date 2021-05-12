@@ -1,6 +1,5 @@
 #include "main.h"
-
-extern void fatalError();
+#include "commonexternal.h"
 
 extern Folders gpsFlDir;
 extern Folders wifiFlDir;
@@ -12,13 +11,11 @@ extern Folders wifiFlDir;
  */
 void clearFolders(bool _gps, bool _wifi)
 {
-
-  // Текущее имя файла из папки
   File entry;
-
-  //
   File inDir;
   String newFl;
+
+  logging("Checking working folders\n", false);
 
   if (_gps && SD.exists(gpsFlDir.work) && SD.exists(gpsFlDir.ready))
   {
@@ -28,6 +25,16 @@ void clearFolders(bool _gps, bool _wifi)
     }
     while (entry = inDir.openNextFile())
     {
+      if (entry.size() <= 500U)
+      {
+        if (!SD.remove(entry.name()))
+        {
+          fatalError();
+        }
+        logging("%s deleted: file size less than 500 bytes\n", entry.name(), false);
+        continue;
+      }
+
       newFl = (String)gpsFlDir.ready + ((String)entry.name()).substring(GPS_SUBSTR_1);
       if (!SD.rename((String)entry.name(), newFl))
       {
@@ -45,6 +52,15 @@ void clearFolders(bool _gps, bool _wifi)
     }
     while (entry = inDir.openNextFile())
     {
+      if (entry.size() <= 500U)
+      {
+        if (!SD.remove(entry.name()))
+        {
+          fatalError();
+        }
+        logging("%s deleted: file size less than 500 bytes\n", entry.name(), false);
+        continue;
+      }
       newFl = (String)wifiFlDir.ready + ((String)entry.name()).substring(WIFI_SUBSTR_1);
       if (!SD.rename((String)entry.name(), newFl))
       {
@@ -53,4 +69,5 @@ void clearFolders(bool _gps, bool _wifi)
     }
     inDir.close();
   }
+  logging("Checking working folders finished\n", false);
 } // clearFolders()

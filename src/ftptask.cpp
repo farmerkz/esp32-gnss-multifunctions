@@ -1,4 +1,5 @@
 #include "main.h"
+#include "commonexternal.h"
 
 extern EventGroupHandle_t eventGroup_1;
 extern volatile xSemaphoreHandle sdMutex;
@@ -6,7 +7,6 @@ extern volatile xSemaphoreHandle wifiMutex;
 extern Folders gpsFlDir;
 extern Folders wifiFlDir;
 extern fileConfig config;
-extern void fatalError();
 ESP32_FTPClient _ftp(config.ftpAddress, FTP_CMD_PORT, config.ftpUser, config.ftpPasswd, 5000, FTP_DEBUG);
 
 /** @brief Отправляем все файлы в папках ready на FTP сервер
@@ -100,6 +100,15 @@ void ftpTask(void *pvParameters)
                     {
                         xSemaphoreTake(sdMutex, portMAX_DELAY);
                         _entry = _ftpReadyDir.openNextFile();
+/*
+                        if (_entry.size() <= 243U)
+                        {
+                            SD.remove(_entry.name());
+                            logging("%s deleted: size 243 bytes or less\n", _entry.name(), false);
+                            xSemaphoreGive(sdMutex);
+                            continue;
+                        }
+*/
                         xSemaphoreGive(sdMutex);
                         if (!_entry)
                         {
@@ -139,6 +148,7 @@ void ftpTask(void *pvParameters)
                             {
                                 xSemaphoreTake(sdMutex, portMAX_DELAY);
                                 SD.rename((String)_entry.name(), _newName);
+                                logging("%s file is sent to the FTP server\n", _entry.name(), false);
                                 xSemaphoreGive(sdMutex);
                             }
                         }
@@ -206,6 +216,15 @@ void ftpTask(void *pvParameters)
                     {
                         xSemaphoreTake(sdMutex, portMAX_DELAY);
                         _entry = _ftpReadyDir.openNextFile();
+/*
+                        if (_entry.size() <= 234U)
+                        {
+                            SD.remove(_entry.name());
+                            logging("%s deleted: size 234 bytes or less\n", _entry.name(), false);
+                            xSemaphoreGive(sdMutex);
+                            continue;
+                        }
+*/
                         xSemaphoreGive(sdMutex);
                         if (!_entry)
                         {
@@ -247,6 +266,7 @@ void ftpTask(void *pvParameters)
                             {
                                 xSemaphoreTake(sdMutex, portMAX_DELAY);
                                 SD.rename((String)_entry.name(), _newName);
+                                logging("%s file is sent to the FTP server\n", _entry.name(), false);
                                 xSemaphoreGive(sdMutex);
                             }
                         }
