@@ -100,15 +100,6 @@ void ftpTask(void *pvParameters)
                     {
                         xSemaphoreTake(sdMutex, portMAX_DELAY);
                         _entry = _ftpReadyDir.openNextFile();
-/*
-                        if (_entry.size() <= 243U)
-                        {
-                            SD.remove(_entry.name());
-                            logging("%s deleted: size 243 bytes or less\n", _entry.name(), false);
-                            xSemaphoreGive(sdMutex);
-                            continue;
-                        }
-*/
                         xSemaphoreGive(sdMutex);
                         if (!_entry)
                         {
@@ -216,15 +207,6 @@ void ftpTask(void *pvParameters)
                     {
                         xSemaphoreTake(sdMutex, portMAX_DELAY);
                         _entry = _ftpReadyDir.openNextFile();
-/*
-                        if (_entry.size() <= 234U)
-                        {
-                            SD.remove(_entry.name());
-                            logging("%s deleted: size 234 bytes or less\n", _entry.name(), false);
-                            xSemaphoreGive(sdMutex);
-                            continue;
-                        }
-*/
                         xSemaphoreGive(sdMutex);
                         if (!_entry)
                         {
@@ -237,7 +219,6 @@ void ftpTask(void *pvParameters)
                                        (String)config.moduleID +
                                        ((String)_entry.name()).substring(GPS_SUBSTR_2);
                         _ftp.InitFile("Type I");
-                        // ftp.NewFile(entry.name());
                         _ftp.NewFile(_tmpFtpName.c_str());
                         xSemaphoreTake(sdMutex, portMAX_DELAY);
                         _ftpSend = SD.open(_entry.name());
@@ -260,7 +241,6 @@ void ftpTask(void *pvParameters)
                         _ftp.CloseFile();
                         if (!_ftpErr)
                         {
-                            // ftp.RenameFile((char *)tmpFtpName.c_str(), (char *)entry.name());
                             _ftp.RenameFile((char *)_tmpFtpName.c_str(), (char *)_tmpFtpName2.c_str());
                             if (!_ftpErr)
                             {
