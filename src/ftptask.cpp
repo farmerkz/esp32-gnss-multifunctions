@@ -79,8 +79,10 @@ void ftpTask(void *pvParameters)
                 if (i >= 200)
                 {
                     WiFi.disconnect();
+                    xSemaphoreTake(sdMutex, portMAX_DELAY);
                     _ftpReadyDir.close();
                     _ftpSavedDir.close();
+                    xSemaphoreGive(sdMutex);
                     delay(100);
                     xSemaphoreGive(wifiMutex);
                     continue;
@@ -129,8 +131,8 @@ void ftpTask(void *pvParameters)
                             }
                             xSemaphoreTake(sdMutex, portMAX_DELAY);
                         }
-                        xSemaphoreGive(sdMutex);
                         _ftpSend.close();
+                        xSemaphoreGive(sdMutex);
                         _ftp.CloseFile();
                         if (!_ftpErr)
                         {
@@ -149,9 +151,10 @@ void ftpTask(void *pvParameters)
                 WiFi.disconnect();
                 xSemaphoreGive(wifiMutex);
             }
-
+            xSemaphoreTake(sdMutex, portMAX_DELAY);
             _ftpReadyDir.close();
             _ftpSavedDir.close();
+            xSemaphoreGive(sdMutex);
             delay(100);
         }
         if (config.gpssend && !_ftpErr)
@@ -185,8 +188,10 @@ void ftpTask(void *pvParameters)
                 if (i >= 200)
                 {
                     WiFi.disconnect();
+                    xSemaphoreTake(sdMutex, portMAX_DELAY);
                     _ftpReadyDir.close();
                     _ftpSavedDir.close();
+                    xSemaphoreGive(sdMutex);
                     delay(100);
                     xSemaphoreGive(wifiMutex);
                     continue;
@@ -236,8 +241,8 @@ void ftpTask(void *pvParameters)
                             }
                             xSemaphoreTake(sdMutex, portMAX_DELAY);
                         }
-                        xSemaphoreGive(sdMutex);
                         _ftpSend.close();
+                        xSemaphoreGive(sdMutex);
                         _ftp.CloseFile();
                         if (!_ftpErr)
                         {
@@ -257,8 +262,10 @@ void ftpTask(void *pvParameters)
                 xSemaphoreGive(wifiMutex);
             }
 
+            xSemaphoreTake(sdMutex, portMAX_DELAY);
             _ftpReadyDir.close();
             _ftpSavedDir.close();
+            xSemaphoreGive(sdMutex);
         }
 
         if (config.ftpbeep && (_gpsSended || _wifiSended))
