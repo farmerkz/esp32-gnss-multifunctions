@@ -106,4 +106,8 @@ void readConf(char *_filename)
   {
     logging("No config file, load default config\n", false);
   }
+  // logging(config.ssid, false);
+  // logging("\n", false);
+  // logging(config.ftpAddress, false);
+  // logging("\n", false);
 } //readConf
